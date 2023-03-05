@@ -1,0 +1,50 @@
+body {
+  padding-top: 5%;
+  background-color: #151515;
+}
+
+h1 {
+  color: #ffffff;
+  font-size: 500%;
+}
+
+h2 {
+  color: #ffffff;
+  font-size: 200%;
+}
+
+h3 {
+  color: #ffffff;
+  font-size: 150%;
+}
+
+h4 {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 70%;
+}
+
+p {
+  color: #b4b3b3;
+  font-size: 125%;
+}
+
+#link1 {
+    color: #ffffff;
+  }
+
+.welcome {
+    display: flex;
+    align-items: center;
+    height: 110vh;
+}
+
+.div100 {
+    height: 100vh;
+}
+
+.card-text {
+    text-align: center;
+    color: #5a5a5a;
+ }
+ 
