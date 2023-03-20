@@ -1,32 +1,69 @@
 body {
-  padding-top: 5%;
+  padding-top: 10vh;
   background-color: #151515;
 }
 
 h1 {
   color: #ffffff;
-  font-size: 500%;
+  font-size: 7.5vh;
 }
 
 h2 {
   color: #ffffff;
-  font-size: 200%;
+  font-size: 3.6vh;
 }
 
 h3 {
   color: #ffffff;
-  font-size: 150%;
-}
-
-h4 {
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 70%;
+  font-size: 2.5vh;
 }
 
 p {
   color: #b4b3b3;
-  font-size: 125%;
+  font-size: 2.25vh;
+}
+
+/*Media queries for changing the max container width at diferent screen sizes*/
+@media (min-width: 576px) {
+  .container {
+    max-width: 540px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 939px;
+  }
+  body {
+    padding-top: 15vh;
+  }
+}
+
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1100px;
+  }
+  body {
+    padding-top: 13vh;
+  }
+}
+
+@media (min-width: 1920px) {
+  .container {
+    max-width: 1320px;
+  }
 }
 
 #link1 {
