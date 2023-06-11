@@ -66,6 +66,10 @@ p {
   }
 }
 
+  .row.with-gap > div[class^="col-"] {
+    margin-bottom: 3vh;
+  }
+
 #link1 {
   color: #302183;
 }
