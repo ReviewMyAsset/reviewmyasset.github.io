@@ -66,9 +66,9 @@ p {
   }
 }
 
-  .row.with-gap > div[class^="col-"] {
-    margin-bottom: 3vh;
-  }
+.row.with-gap > div[class^="col-"] {
+  margin-bottom: 3vh;
+}
 
 #link1 {
   color: #302183;
@@ -89,9 +89,9 @@ p {
 
 .card-text {
   text-align: center;
-  color: #ffffff;
+  color: #edebeb;
   font-size: 2.7vh;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .nav1 {
@@ -104,7 +104,7 @@ p {
 
 .navitems {
   max-width: 80%;
-  width: 40%;
+  width: 30%;
   border-radius: 5px;
   display: flex;
   align-items: center;
