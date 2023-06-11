@@ -30,19 +30,19 @@
       </div>
     </div>
     <!-- NavBar -->
-    <nav class="container navbar sticky-top navbar-dark nav1">
+    <nav class="container-fluid navbar sticky-top navbar-dark nav1">
       <div class="navitems">
         <div class="test">
-          <a class="navbar-brand navitem" href="#">Home</a>
+          <a class="navbar-brand navitem" style="color: black;" href="#">Home</a>
         </div>
         <div class="test">
-          <a class="navbar-brand navitem" href="about.html">About Us</a>
+          <a class="navbar-brand navitem" style="color: black;" href="about.html">About Us</a>
         </div>
         <div class="test">
-          <a class="navbar-brand navitem" href="http://reviewmyasset.com/blog/">Blog</a>
+          <a class="navbar-brand navitem" style="color: black;" href="http://reviewmyasset.com/blog/">Blog</a>
         </div>
         <div class="test">
-          <a class="navbar-brand navitem" href="contact.html">Contact Us</a>
+          <a class="navbar-brand navitem" style="color: black;" href="contact.html">Contact Us</a>
         </div>
       </div>
     </nav>
@@ -52,23 +52,38 @@
         <div class = "text-center">    
           <h1>Welcome to Review My Asset</h1>
         </div>    
-        <div class = "justify-content-center">
-              <p>
-                Our focus is to make personal finance management simple. It is our
-                mission to do away with fear and uncertainty around investing and
-                enable people to make confident and relevant decisions.
-                Anubha is a Chartered Accountant with more than 20 years of
-                experience in Personal Finance.
-                <a href="https://example.com/about" id="link1">Read her story...</a>
-              </p>
-            </div>
+
+        <div class="row pt-5 justify-content-center">
+          <div class="col-9">
+            <p>
+              <br> At Review My Asset, we are dedicated to making personal finance management simple and successful. <br>
+            </p>
+            <p>
+              We recognize that each of our clients is unique, with distinct financial needs and objectives. 
+              Therefore, we pride ourselves on offering personalized guidance through one-on-one interactions. 
+              Our goal is to empower our clients to identify and understand their financial goals, gain comprehensive 
+              knowledge of various investment products, and make informed choices that align with their objectives. <br>
+            </p>
+            <p>
+              Furthermore, our firm provides a convenient one-stop-shop for all your investment requirements, supported 
+              by a team of experienced and dedicated advisors.
+              <!-- <a href="https://example.com/about" id="link1">Read her story...</a> -->
+            </p>
+          </div>
+        </div>
       </div>
     </div>
+
     <!-- What we do -->
     <div class="container div100">
       <div class="row">
         <div class="col-12 text-center">
           <h1>What we do</h1>
+        </div>
+      </div>
+      <div class="row pt-5 justify-content-center">
+        <div class="col-9">
+          <p>At our firm, we understand that investing in any financial product without consulting a financial distributor is like taking medication without a doctor's diagnosis. Therefore, we prioritize the following areas to ensure your financial success:</p>
         </div>
       </div>
       <div class="row pt-5 justify-content-center">
@@ -92,64 +107,94 @@
           </div>
         </div>
         <div class="row pt-5 d-flex justify-content-center">
-          <div class="col-md-2">
-            <div class="card">
-              <img src="assets\images\mutualFunds.jpg" class="card-img-top" alt="Image 1">
+          <div class="col-md-3">
+            <div class="card greenBackground h-100">
+              <img src="assets\images\mutualFund.png" class="card-img-top" alt="Image 1">
               <div class="card-body">
                 <p class="card-text">Mutual Funds</p>
+                <p class="text-center" style="color: white;">Single point access to virtually all mutual fund schemes from all fund houses in India</p>
               </div>
             </div>
           </div>
-          <!-- <div class="col-md-2">
-            <div class="card">
-              <img src="assets\images\capitalMarket.jpg" class="card-img-top" alt="Image 2">
+          <div class="col-md-3">
+            <div class="card greenBackground h-100">
+              <img src="assets\images\capitalMarkets.png" class="card-img-top" alt="Image 2">
               <div class="card-body">
-                <p class="card-text">Capital Market</p>
+                <p class="card-text">Capital Markets</p>
+                <p class="text-center" style="color: white;">Trading & Demat Account services for paperless access to Mutual Funds, ETFs and Direct Equity</p>
               </div>
             </div>
-          </div> -->
-          <div class="col-md-2">
-            <div class="card">
-              <img src="assets\images\fixedIncome.jpg" class="card-img-top" alt="Image 3">
+          </div>
+          <div class="col-md-3">
+            <div class="card greenBackground h-100">
+              <img src="assets\images\fixedIncome.png" class="card-img-top" alt="Image 3">
               <div class="card-body">
                 <p class="card-text">Fixed Income</p>
+                <p class="text-center" style="color: white;">Easy access to diverse debt products viz. FDs, Bonds, NPS etc. </p>
               </div>
             </div>
           </div>
-          <div class="col-md-2">
-            <div class="card">
-              <img src="assets\images\PMS.jpg" class="card-img-top" alt="Image 4">
-              <div class="card-body">
-                <p class="card-text">PMS</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="card">
-              <img src="assets\images\insurance.jpg" class="card-img-top" alt="Image 5">
+          <div class="col-md-3">
+            <div class="card greenBackground h-100">
+              <img src="assets\images\insurance.png" class="card-img-top" alt="Image 4">
               <div class="card-body">
                 <p class="card-text">Insurance</p>
+                <p class="text-center" style="color: white;">Quality risk advisory and management services with insurance solutions</p>
               </div>
             </div>
           </div>
-          <div class="col-md-2">
-            <div class="card">
-              <img src="assets\images\estatePlanning.png" class="card-img-top" alt="Image 4">
+        </div>  
+        <div class="row pt-5 d-flex justify-content-center">
+          <div class="col-md-3">
+            <div class="card greenBackground h-100">
+              <img src="assets\images\PMS.png" class="card-img-top" alt="Image 5">
               <div class="card-body">
-                <p class="card-text">Estate Planning</p>
+                <p class="card-text">PMS</p>
+                <p class="text-center" style="color: white;">PMS strategies with equity and mutual funds from the leading PMS providers in India.</p>
               </div>
             </div>
           </div>
-          <div class="col-md-2">
-            <div class="card">
-              <img src="assets\images\incomeTaxReturn.jpg" class="card-img-top" alt="Image 5">
+          <div class="col-md-3">
+            <div class="card greenBackground h-100">
+              <img src="assets\images\taxReturn.png" class="card-img-top" alt="Image 4">
               <div class="card-body">
                 <p class="card-text">Income Tax Return</p>
+                <p class="text-center" style="color: white;">Return filing services across all entities in India</p>
               </div>
             </div>
           </div>
+          <div class="col-md-3">
+            <div class="card greenBackground h-100">
+              <img src="assets\images\will.png" class="card-img-top" alt="Image 4">
+              <div class="card-body">
+                <p class="card-text">Will Writing</p>
+                <p class="text-center" style="color: white;">Will writing services in India</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card greenBackground h-100">
+              <img src="assets\images\loan.png" class="card-img-top" alt="Image 5">
+              <div class="card-body">
+                <p class="card-text">Loan Against MF</p>
+                <p class="text-center" style="color: white;">Manage short-term needs for funds without redeeming mutual fund investments.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-
+    <!-- Who We Are -->
+    <div class="container div100">
+      <div class="row">
+        <div class="col-12 text-center">
+          <h1>Who We Are</h1>
+        </div>
+      </div>
+      <div class="row pt-5 justify-content-center">
+        <div class="col-9">
+          <p> we prioritize the following areas to ensure your financial success:</p>
         </div>
       </div>
     </div>
