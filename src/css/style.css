@@ -1,9 +1,13 @@
 body {
-  padding-top: 10vh;
   background-color: #f0f0f0;
 }
 
 h1 {
+  color: #202020;
+  font-size: 5.625vh;
+}
+
+h4{
   color: #202020;
   font-size: 5.625vh;
 }
@@ -102,6 +106,12 @@ p {
   padding-bottom: 10px;
 }
 
+.nav2 {
+  background-color: #e4e4e4;
+  display: flex;
+  justify-content: center;
+}
+
 .navitems {
   max-width: 80%;
   width: 30%;
@@ -147,12 +157,13 @@ a::after {
 	transition: opacity .5s, transform .5s;
 }
 
-a:hover::after,
-a:focus::after {
-	opacity: 1;
+.navbar a:hover::after,
+.navbar a:focus::after {
+  opacity: 1;
   background-color: #49a58e;
-	transform: translate3d(0, 0.2em, 0);
+  transform: translate3d(0, 0.2em, 0);
 }
+
 
 /* .navitem:hover {
   font-size: 1.6rem;
@@ -190,4 +201,47 @@ a:focus::after {
 
 .bigImageGlow{
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+
+.map-container-desktop {
+  position: relative;
+  padding-bottom: 56.25%; /* Aspect ratio: 16:9 (divide the height by the width and multiply by 100) */
+  overflow: hidden;
+}
+
+.map-container-desktop iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (max-width: 767px) { /* Hide the map container on screens smaller than 768px */
+  .map-container-desktop {
+    display: none;
+  }
+}
+
+.map-container-mobile {
+  position: relative;
+  padding-bottom: 46.25%; /* Aspect ratio: 16:9 (divide the height by the width and multiply by 100) */
+  overflow: hidden;
+}
+
+.map-container-mobile iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (min-width: 767px) { /* Hide the map container on screens smaller than 768px */
+  .map-container-mobile {
+    display: none;
+  }
 }
