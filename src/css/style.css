@@ -28,6 +28,12 @@ p {
 }
 
 /*Media queries for changing the max container width at diferent screen sizes*/
+@media (min-width: 432px) {
+  .container {
+    max-width: 408px;
+  }
+}
+
 @media (min-width: 576px) {
   .container {
     max-width: 540px;
@@ -219,7 +225,7 @@ a::after {
   border: 0;
 }
 
-@media (max-width: 767px) { /* Hide the map container on screens smaller than 768px */
+@media (max-width: 767px) { /* Hide the large map container on screens smaller than 768px */
   .map-container-desktop {
     display: none;
   }
@@ -240,7 +246,7 @@ a::after {
   border: 0;
 }
 
-@media (min-width: 767px) { /* Hide the map container on screens smaller than 768px */
+@media (min-width: 767px) { /* Hide the small map container on screens larger than 768px */
   .map-container-mobile {
     display: none;
   }
