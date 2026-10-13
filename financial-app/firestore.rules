@@ -1,0 +1,193 @@
+rules_version = '2';
+// Data model: clients/{authUid} contains private profile, portfolio and Quick Profile.
+// uid,email,inviteId,username,createdAt are immutable; revision increments on updates.
+// invitations/{64hex} has one email, pending/accepted/revoked state and expiry <=7 days.
+// adviserNotes/{clientUid} is stored separately and can only be read/written by the adviser.
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function verified() { return request.auth != null && request.auth.token.email_verified == true; }
+  function adviser() { return verified() && request.auth.token.email == 'anubhanadgouda@gmail.com'; }
+  function owner(uid) { return verified() && request.auth.uid == uid; }
+  function exact(d, fields) { return d is map && d.keys().hasOnly(fields); }
+  function active(uid, data) {
+   let invitation = get(/databases/$(database)/documents/invitations/$(data.inviteId)).data;
+   return invitation.status == 'accepted' && invitation.acceptedUid == uid && invitation.email == request.auth.token.email;
+  }
+  function validPortfolio(d) {
+   return exact(d, ['equity','fixedIncome','metals','property','debt','insurance','other'])
+    && (!('other' in d) || (d.other is number && d.other >= 0 && d.other <= 1000000000000000))
+    && (d.equity is number && d.equity >= 0 && d.equity <= 1000000000000000) && (d.fixedIncome is number && d.fixedIncome >= 0 && d.fixedIncome <= 1000000000000000) && (d.metals is number && d.metals >= 0 && d.metals <= 1000000000000000) && (d.property is number && d.property >= 0 && d.property <= 1000000000000000) && (d.debt is number && d.debt >= 0 && d.debt <= 1000000000000000) && (d.insurance is number && d.insurance >= 0 && d.insurance <= 1000000000000000);
+  }
+  function validAsset(d) { return exact(d,['selected','amount','detailChoice','note']) && d.selected is bool && (d.amount is number && d.amount >= 0 && d.amount <= 1000000000000000) && d.detailChoice in ['','details','later'] && (d.note is string && d.note.size() <= 1000); }
+  function validLoan(d) { return exact(d,['selected','outstanding','monthlyEmi']) && d.selected is bool && (d.outstanding is number && d.outstanding >= 0 && d.outstanding <= 1000000000000000) && (d.monthlyEmi is number && d.monthlyEmi >= 0 && d.monthlyEmi <= 1000000000000000); }
+  function validProtection(d) { return exact(d,['status','coverAmount']) && d.status in ['','Yes','No','Not sure'] && (d.coverAmount is number && d.coverAmount >= 0 && d.coverAmount <= 1000000000000000); }
+  function validFamily(d) { return d.keys().hasOnly(['id','relationship','age','financiallyDependent']) && d.id.matches('[A-Za-z0-9-]{1,100}') && d.relationship.matches('.{0,60}') && d.age.matches('[0-9]{0,3}') && d.financiallyDependent in ['Yes','No']; }
+  function validProfile(d) { return exact(d,["fullName", "dateOfBirth", "email", "phone", "city", "occupation", "maritalStatus", "dependants", "incomeRange", "primaryGoal", "horizon", "riskComfort"])
+   && (d.fullName is string && d.fullName.size() <= 200)
+   && (d.dateOfBirth is string && d.dateOfBirth.size() <= 200)
+   && (d.email is string && d.email.size() <= 254)
+   && (d.phone is string && d.phone.size() <= 200)
+   && (d.city is string && d.city.size() <= 200)
+   && (d.occupation is string && d.occupation.size() <= 200)
+   && (d.maritalStatus is string && d.maritalStatus.size() <= 200)
+   && (d.dependants is string && d.dependants.size() <= 200)
+   && (d.incomeRange is string && d.incomeRange.size() <= 200)
+   && (d.primaryGoal is string && d.primaryGoal.size() <= 1000)
+   && (d.horizon is string && d.horizon.size() <= 200)
+   && (d.riskComfort is string && d.riskComfort.size() <= 200); }
+  function validInitialQuick(d) { let empty = {"step": 1, "fullName": "", "dateOfBirth": "", "maritalStatus": "", "workStatus": "", "workType": "", "incomeRange": "", "familyMembers": [], "familySkipped": false, "assets": {"cash": {"selected": false, "amount": 0, "detailChoice": "", "note": ""}, "investments": {"selected": false, "amount": 0, "detailChoice": "", "note": ""}, "property": {"selected": false, "amount": 0, "detailChoice": "", "note": ""}, "metals": {"selected": false, "amount": 0, "detailChoice": "", "note": ""}, "businessOther": {"selected": false, "amount": 0, "detailChoice": "", "note": ""}}, "loans": {"home": {"selected": false, "outstanding": 0, "monthlyEmi": 0}, "vehicle": {"selected": false, "outstanding": 0, "monthlyEmi": 0}, "creditCard": {"selected": false, "outstanding": 0, "monthlyEmi": 0}, "education": {"selected": false, "outstanding": 0, "monthlyEmi": 0}, "business": {"selected": false, "outstanding": 0, "monthlyEmi": 0}, "other": {"selected": false, "outstanding": 0, "monthlyEmi": 0}}, "noLoans": false, "protection": {"life": {"status": "", "coverAmount": 0}, "health": {"status": "", "coverAmount": 0}, "accident": {"status": "", "coverAmount": 0}, "property": {"status": "", "coverAmount": 0}, "vehicle": {"status": "", "coverAmount": 0}}, "householdIncome": 0, "incomeFrequency": "annual", "monthlyExpenses": 0, "monthlyEmi": 0, "goals": [], "primaryGoal": ""}; return d is map && d.diff(empty).affectedKeys().hasOnly(["fullName"]) && (d.fullName is string && d.fullName.size() <= 100); }
+  function validQuick(d) { return exact(d,["step", "fullName", "dateOfBirth", "maritalStatus", "workStatus", "workType", "incomeRange", "familyMembers", "familySkipped", "assets", "loans", "noLoans", "protection", "householdIncome", "incomeFrequency", "monthlyExpenses", "monthlyEmi", "goals", "primaryGoal"])
+   && d.step is int && d.step >= 1 && d.step <= 9
+   && (d.fullName is string && d.fullName.size() <= 200)
+   && (d.dateOfBirth is string && d.dateOfBirth.size() <= 200)
+   && (d.maritalStatus is string && d.maritalStatus.size() <= 200)
+   && (d.workStatus is string && d.workStatus.size() <= 200)
+   && (d.workType is string && d.workType.size() <= 200)
+   && (d.incomeRange is string && d.incomeRange.size() <= 200)
+   && (d.primaryGoal is string && d.primaryGoal.size() <= 200)
+   && d.familySkipped is bool && d.noLoans is bool
+   && d.familyMembers == []
+   && (d.assets == resource.data.quickProfile.assets || (exact(d.assets,["cash", "investments", "property", "metals", "businessOther"])
+   && validAsset(d.assets.cash)
+   && validAsset(d.assets.investments)
+   && validAsset(d.assets.property)
+   && validAsset(d.assets.metals)
+   && validAsset(d.assets.businessOther)))
+   && (d.loans == resource.data.quickProfile.loans || (exact(d.loans,["home", "vehicle", "creditCard", "education", "business", "other"])
+   && validLoan(d.loans.home)
+   && validLoan(d.loans.vehicle)
+   && validLoan(d.loans.creditCard)
+   && validLoan(d.loans.education)
+   && validLoan(d.loans.business)
+   && validLoan(d.loans.other)))
+   && (d.protection == resource.data.quickProfile.protection || (exact(d.protection,["life", "health", "accident", "property", "vehicle"])
+   && validProtection(d.protection.life)
+   && validProtection(d.protection.health)
+   && validProtection(d.protection.accident)
+   && validProtection(d.protection.property)
+   && validProtection(d.protection.vehicle)))
+   && (d.householdIncome is number && d.householdIncome >= 0 && d.householdIncome <= 1000000000000000) && (d.monthlyExpenses is number && d.monthlyExpenses >= 0 && d.monthlyExpenses <= 1000000000000000) && (d.monthlyEmi is number && d.monthlyEmi >= 0 && d.monthlyEmi <= 1000000000000000) && d.incomeFrequency in ['monthly','annual']
+   && d.goals is list && d.goals.size() <= 10 && d.goals.size() == d.goals.toSet().size() && d.goals.toSet().hasOnly(["Children’s Education", "Children’s Marriage", "Buy / Upgrade Home", "Travel", "Major Purchase", "Retirement", "Business", "Family Security", "Financial Independence", "Other"]) && (d.primaryGoal == '' || d.primaryGoal in d.goals); }
+  function validClient(d, uid) {
+   return exact(d,['uid','email','inviteId','username','onboardingComplete','quickProfile','profile','portfolio','createdAt','savedAt','revision'])
+    && d.uid == uid && (d.uid is string && d.uid.size() <= 128) && (d.email is string && d.email.size() <= 254) && (d.inviteId is string && d.inviteId.size() <= 64) && d.inviteId.matches('[a-f0-9]{64}') && (d.username is string && d.username.size() <= 100)
+    && d.onboardingComplete is bool && (request.method != 'create' && d.profile == resource.data.profile || validProfile(d.profile)) && d.profile.email == d.email
+    && (request.method == 'create' ? validInitialQuick(d.quickProfile) : (d.quickProfile == resource.data.quickProfile || validQuick(d.quickProfile))) && (request.method != 'create' && d.portfolio == resource.data.portfolio || validPortfolio(d.portfolio))
+    && d.createdAt is timestamp && d.createdAt <= request.time && d.savedAt == request.time
+    && d.revision is int && d.revision >= 0 && d.revision <= 1000000000;
+  }
+  function validInvitation(d) {
+   return exact(d,['email','clientName','status','acceptedUid','createdAt','expiresAt','createdBy','acceptedAt'])
+    && (d.email is string && d.email.size() <= 254) && d.email.size() >= 3 && d.email.matches('[^@ ]+@[^@ ]+[.][^@ ]+') && (d.clientName is string && d.clientName.size() <= 100) && d.clientName.size() > 0
+    && d.status in ['pending','accepted','revoked'] && (d.acceptedUid is string && d.acceptedUid.size() <= 128) && (d.createdBy is string && d.createdBy.size() <= 128)
+    && d.createdAt is timestamp && d.expiresAt is timestamp && d.createdAt <= request.time
+    && d.expiresAt > d.createdAt && d.expiresAt <= d.createdAt + duration.value(7,'d')
+    && ((d.acceptedAt == null && d.acceptedUid == '') || (d.acceptedAt is timestamp && d.acceptedAt <= request.time && d.acceptedUid.size() > 0));
+  }
+  match /clients/{uid} {
+   allow get: if adviser() || (owner(uid) && (!exists(/databases/$(database)/documents/clients/$(uid)) || active(uid,resource.data)));
+   allow list: if adviser();
+   allow create: if owner(uid) && validClient(request.resource.data,uid)
+    && request.resource.data.email == request.auth.token.email && request.resource.data.createdAt == request.time && request.resource.data.revision == 0
+    && get(/databases/$(database)/documents/invitations/$(request.resource.data.inviteId)).data.status == 'pending'
+    && getAfter(/databases/$(database)/documents/invitations/$(request.resource.data.inviteId)).data.status == 'accepted'
+    && getAfter(/databases/$(database)/documents/invitations/$(request.resource.data.inviteId)).data.acceptedUid == uid
+    && getAfter(/databases/$(database)/documents/invitations/$(request.resource.data.inviteId)).data.email == request.auth.token.email;
+   allow update: if owner(uid) && active(uid,resource.data) && validClient(request.resource.data,uid)
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['profile','quickProfile','portfolio','onboardingComplete','savedAt','revision'])
+    && request.resource.data.revision == resource.data.revision + 1;
+   allow delete: if false;
+  }
+  match /invitations/{token} {
+   allow get: if adviser() || (verified() && resource.data.email == request.auth.token.email);
+   allow list: if adviser();
+   allow create: if adviser() && token.matches('[a-f0-9]{64}') && validInvitation(request.resource.data)
+    && request.resource.data.status == 'pending' && request.resource.data.acceptedUid == '' && request.resource.data.acceptedAt == null
+    && request.resource.data.createdBy == request.auth.uid && request.resource.data.createdAt == request.time;
+   allow update: if validInvitation(request.resource.data) && (
+    (adviser() && resource.data.status != 'revoked' && request.resource.data.status == 'revoked' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+    || (adviser() && resource.data.status == 'revoked' && resource.data.acceptedUid != '' && request.resource.data.status == 'accepted' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+    || (verified() && resource.data.email == request.auth.token.email && resource.data.status == 'pending' && resource.data.expiresAt > request.time
+     && request.resource.data.status == 'accepted' && request.resource.data.acceptedUid == request.auth.uid && request.resource.data.acceptedAt == request.time
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','acceptedUid','acceptedAt'])
+     && !exists(/databases/$(database)/documents/clients/$(request.auth.uid))
+     && getAfter(/databases/$(database)/documents/clients/$(request.auth.uid)).data.inviteId == token
+     && getAfter(/databases/$(database)/documents/clients/$(request.auth.uid)).data.uid == request.auth.uid));
+   allow delete: if false;
+  }
+  function validNote(d) { return exact(d,['text','updatedAt','adviserUid']) && (d.text is string && d.text.size() <= 5000) && d.updatedAt == request.time && d.adviserUid == request.auth.uid; }
+  match /adviserNotes/{uid} {
+   allow read: if adviser() && exists(/databases/$(database)/documents/clients/$(uid));
+   allow create, update: if adviser() && exists(/databases/$(database)/documents/clients/$(uid)) && validNote(request.resource.data);
+   allow delete: if false;
+  }
+
+  // Family members are a separate private document so each write stays below
+  // Firestore's expression limit while every member is validated.
+  function validFamilies(d) { return exact(d,['members','revision','savedAt']) && d.members is list && d.members.size() <= 10 && (d.members.size() <= 0 || validFamily(d.members[0]))  && (d.members.size() <= 1 || validFamily(d.members[1]))  && (d.members.size() <= 2 || validFamily(d.members[2]))  && (d.members.size() <= 3 || validFamily(d.members[3]))  && (d.members.size() <= 4 || validFamily(d.members[4]))  && (d.members.size() <= 5 || validFamily(d.members[5]))  && (d.members.size() <= 6 || validFamily(d.members[6]))  && (d.members.size() <= 7 || validFamily(d.members[7]))  && (d.members.size() <= 8 || validFamily(d.members[8]))  && (d.members.size() <= 9 || validFamily(d.members[9])) && d.revision is int && d.revision >= 1 && d.savedAt == request.time; }
+  match /clientFamilies/{uid} {
+   allow get: if adviser() || (owner(uid) && active(uid,get(/databases/$(database)/documents/clients/$(uid)).data));
+   allow list: if adviser();
+   allow create, update: if owner(uid) && active(uid,get(/databases/$(database)/documents/clients/$(uid)).data)
+    && validFamilies(request.resource.data)
+    && getAfter(/databases/$(database)/documents/clients/$(uid)).data.savedAt == request.time
+    && getAfter(/databases/$(database)/documents/clients/$(uid)).data.revision == request.resource.data.revision;
+   allow delete: if false;
+  }
+
+  // Financial Master File: eight fixed sections under a private client. Each
+  // section uses three chunks of <=4 records. Section writes share the parent's revision and time.
+  // Required fields: entries:list, confirmed:bool, revision:int, savedAt:timestamp.
+  function validFileAsset(d) { return d.keys().hasOnly(['id', 'type', 'name', 'institution', 'value', 'ownershipShare', 'notes']) && d.id.matches('[A-Za-z0-9-]{1,100}') && d.notes.matches('[\\s\\S]{0,500}')
+    && d.type in ['equity','fixedIncome','cash','metals','property','vehicle','business','other'] && d.name.matches('[\\s\\S]{0,100}') && d.institution.matches('[\\s\\S]{0,100}') && d.value is number && d.value >= 0 && d.value <= 1000000000000 && d.ownershipShare is number && d.ownershipShare >= 1 && d.ownershipShare <= 100; }
+  function validFileLoan(d) { return d.keys().hasOnly(['id', 'type', 'lender', 'outstanding', 'monthlyEmi', 'interestRate', 'endDate', 'notes']) && d.id.matches('[A-Za-z0-9-]{1,100}') && d.notes.matches('[\\s\\S]{0,500}')
+    && d.type in ['home','vehicle','creditCard','education','business','other'] && d.lender.matches('[\\s\\S]{0,100}') && d.outstanding is number && d.outstanding >= 0 && d.outstanding <= 1000000000000 && d.monthlyEmi is number && d.monthlyEmi >= 0 && d.monthlyEmi <= 1000000000000 && d.interestRate is number && d.interestRate >= 0 && d.interestRate <= 100 && d.endDate.matches('([0-9]{4}-[0-9]{2}-[0-9]{2})?'); }
+  function validFilePolicy(d) { return d.keys().hasOnly(['id', 'type', 'insurer', 'coverAmount', 'annualPremium', 'renewalDate', 'nominee', 'notes']) && d.id.matches('[A-Za-z0-9-]{1,100}') && d.notes.matches('[\\s\\S]{0,500}')
+    && d.type in ['life','health','accident','property','vehicle'] && d.insurer.matches('[\\s\\S]{0,100}') && d.coverAmount is number && d.coverAmount >= 0 && d.coverAmount <= 1000000000000 && d.annualPremium is number && d.annualPremium >= 0 && d.annualPremium <= 1000000000000 && d.renewalDate.matches('([0-9]{4}-[0-9]{2}-[0-9]{2})?') && d.nominee.matches('[\\s\\S]{0,100}'); }
+  function validFileGoal(d) { return d.keys().hasOnly(['id', 'category', 'name', 'targetAmount', 'savedAmount', 'targetYear', 'priority', 'notes']) && d.id.matches('[A-Za-z0-9-]{1,100}') && d.notes.matches('[\\s\\S]{0,500}')
+    && d.category in ["Children’s Education", "Children’s Marriage", "Buy / Upgrade Home", "Travel", "Major Purchase", "Retirement", "Business", "Family Security", "Financial Independence", "Other"] && d.name.matches('[\\s\\S]{0,100}') && d.targetAmount is number && d.targetAmount >= 0 && d.targetAmount <= 1000000000000 && d.savedAmount is number && d.savedAmount >= 0 && d.savedAmount <= 1000000000000 && d.targetYear is int && d.targetYear >= 1900 && d.targetYear <= 2100 && d.priority in ['High','Medium','Low']; }
+  function validAssetsEntries(d) { return (d.size() <= 0 || validFileAsset(d[0])) &&
+    (d.size() <= 1 || validFileAsset(d[1])) &&
+    (d.size() <= 2 || validFileAsset(d[2])) &&
+    (d.size() <= 3 || validFileAsset(d[3])); }
+  function validLoansEntries(d) { return (d.size() <= 0 || validFileLoan(d[0])) &&
+    (d.size() <= 1 || validFileLoan(d[1])) &&
+    (d.size() <= 2 || validFileLoan(d[2])) &&
+    (d.size() <= 3 || validFileLoan(d[3])); }
+  function validProtectionEntries(d) { return (d.size() <= 0 || validFilePolicy(d[0])) &&
+    (d.size() <= 1 || validFilePolicy(d[1])) &&
+    (d.size() <= 2 || validFilePolicy(d[2])) &&
+    (d.size() <= 3 || validFilePolicy(d[3])); }
+  function validGoalsEntries(d) { return (d.size() <= 0 || validFileGoal(d[0])) &&
+    (d.size() <= 1 || validFileGoal(d[1])) &&
+    (d.size() <= 2 || validFileGoal(d[2])) &&
+    (d.size() <= 3 || validFileGoal(d[3])); }
+  function validFileSection(d, section) { return exact(d,['entries','confirmed','revision','savedAt'])
+    && d.confirmed is bool && d.revision is int && d.revision >= 1 && d.revision <= 1000000000 && d.savedAt == request.time
+    && d.entries is list && d.entries.size() <= 4
+    && (section in ['about','family','cashflow','review'] ? d.entries.size() == 0 : section.matches('assets(-[23])?') ? validAssetsEntries(d.entries) : section.matches('loans(-[23])?') ? validLoansEntries(d.entries) : section.matches('protection(-[23])?') ? validProtectionEntries(d.entries) : validGoalsEntries(d.entries)); }
+  function validSectionCommit(uid, section) {
+    let detailed = section.matches('(assets|loans|protection|goals)(-[23])?');
+    let head = section.matches('assets(-[23])?') ? 'assets' : section.matches('loans(-[23])?') ? 'loans' : section.matches('protection(-[23])?') ? 'protection' : 'goals';
+    let base = /databases/$(database)/documents/clients/$(uid)/sections/$(head);
+    let second = /databases/$(database)/documents/clients/$(uid)/sections/$(head + '-2');
+    let third = /databases/$(database)/documents/clients/$(uid)/sections/$(head + '-3');
+    return !detailed || (getAfter(base).data.revision == request.resource.data.revision
+      && getAfter(second).data.revision == request.resource.data.revision && getAfter(third).data.revision == request.resource.data.revision
+      && getAfter(base).data.confirmed == request.resource.data.confirmed
+      && getAfter(second).data.confirmed == request.resource.data.confirmed && getAfter(third).data.confirmed == request.resource.data.confirmed
+      && getAfter(base).data.savedAt == request.time && getAfter(second).data.savedAt == request.time && getAfter(third).data.savedAt == request.time);
+  }
+  match /clients/{uid}/sections/{section} {
+    allow get: if exists(/databases/$(database)/documents/clients/$(uid)) && (adviser() || (owner(uid) && active(uid,get(/databases/$(database)/documents/clients/$(uid)).data)));
+    allow list: if false;
+    allow create, update: if (section in ['about','family','cashflow','review'] || section.matches('(assets|loans|protection|goals)(-[23])?'))
+      && owner(uid) && exists(/databases/$(database)/documents/clients/$(uid)) && active(uid,get(/databases/$(database)/documents/clients/$(uid)).data)
+      && validFileSection(request.resource.data, section) && validSectionCommit(uid, section)
+      && getAfter(/databases/$(database)/documents/clients/$(uid)).data.savedAt == request.time
+      && getAfter(/databases/$(database)/documents/clients/$(uid)).data.revision == request.resource.data.revision;
+    allow delete: if false;
+  }
+  match /{document=**} { allow read,write: if false; }
+ }
+}

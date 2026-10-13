@@ -1,0 +1,79 @@
+{
+  "firestore": {
+    "database": "financial-profiles",
+    "location": "asia-south1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json",
+    "edition": "enterprise",
+    "dataAccessMode": "FIRESTORE_NATIVE"
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true
+    },
+    "authorizedDomains": [
+      "localhost",
+      "review-my-asset-app.nadgoudauttam.chatgpt.site",
+      "review-my-asset-uttam-2026.firebaseapp.com",
+      "review-my-asset-uttam-2026.web.app"
+    ]
+  },
+  "emulators": {
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8080,
+      "edition": "enterprise"
+    },
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 9099
+    },
+    "ui": {
+      "enabled": false
+    },
+    "singleProjectMode": true
+  },
+  "hosting": {
+    "site": "review-my-asset-uttam-2026",
+    "public": "firebase-dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "no-referrer"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          }
+        ]
+      },
+      {
+        "source": "/index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
+    ]
+  }
+}
